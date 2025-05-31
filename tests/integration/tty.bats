@@ -76,7 +76,7 @@ function teardown() {
 	testcontainer test_busybox running
 
 	# note that stdout/stderr are already redirected by bats' run
-	runc exec -t test_busybox sh -c "stty size" </dev/null
+	runc exec -t test_busybox  -- sh -c "stty size" </dev/null
 	[ "$status" -eq 0 ]
 }
 
@@ -90,7 +90,7 @@ function teardown() {
 
 	# run the exec
 	# shellcheck disable=SC2016
-	runc exec -t test_busybox sh -c 'for file in /proc/self/fd/[012]; do readlink $file; done'
+	runc exec -t test_busybox  -- sh -c 'for file in /proc/self/fd/[012]; do readlink $file; done'
 	[ "$status" -eq 0 ]
 	[[ ${lines[0]} =~ /dev/pts/+ ]]
 	[[ ${lines[1]} =~ /dev/pts/+ ]]
@@ -111,7 +111,7 @@ function teardown() {
 
 	# run the exec
 	# shellcheck disable=SC2016
-	runc exec -t test_busybox sh -c 'stat -c %u:%g $(tty) | tr : \\n'
+	runc exec -t test_busybox  -- sh -c 'stat -c %u:%g $(tty) | tr : \\n'
 	[ "$status" -eq 0 ]
 	[[ ${lines[0]} =~ 0 ]]
 	[[ ${lines[1]} =~ 5 ]]
@@ -135,7 +135,7 @@ function teardown() {
 
 	# run the exec
 	# shellcheck disable=SC2016
-	runc exec -t test_busybox sh -c 'stat -c %u:%g $(tty) | tr : \\n'
+	runc exec -t test_busybox  -- sh -c 'stat -c %u:%g $(tty) | tr : \\n'
 	[ "$status" -eq 0 ]
 	[[ ${lines[0]} =~ 1000 ]]
 	[[ ${lines[1]} =~ 5 ]]

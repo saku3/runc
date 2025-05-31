@@ -30,7 +30,7 @@ function setup() {
 	runc run -d --console-socket "$CONSOLE_SOCKET" test_cgroup_chown
 	[ "$status" -eq 0 ]
 
-	runc exec test_cgroup_chown sh -c "stat -c %U /sys/fs/cgroup"
+	runc exec test_cgroup_chown  -- sh -c "stat -c %U /sys/fs/cgroup"
 	[ "$status" -eq 0 ]
 	[ "$output" = "nobody" ] # /sys/fs/cgroup owned by unmapped user
 }
@@ -44,7 +44,7 @@ function setup() {
 	runc run -d --console-socket "$CONSOLE_SOCKET" test_cgroup_chown
 	[ "$status" -eq 0 ]
 
-	runc exec test_cgroup_chown sh -c "stat -c %U /sys/fs/cgroup"
+	runc exec test_cgroup_chown  -- sh -c "stat -c %U /sys/fs/cgroup"
 	[ "$status" -eq 0 ]
 	[ "$output" = "nobody" ] # /sys/fs/cgroup owned by unmapped user
 }
@@ -55,7 +55,7 @@ function setup() {
 	runc run -d --console-socket "$CONSOLE_SOCKET" test_cgroup_chown
 	[ "$status" -eq 0 ]
 
-	runc exec test_cgroup_chown sh -c "stat -c %U /sys/fs/cgroup"
+	runc exec test_cgroup_chown  -- sh -c "stat -c %U /sys/fs/cgroup"
 	[ "$status" -eq 0 ]
 	[ "$output" = "root" ] # /sys/fs/cgroup owned by root (of user namespace)
 }

@@ -471,7 +471,7 @@ function simple_cr() {
 		fi
 
 		# exec a new background process.
-		runc exec test_busybox sh -c 'sleep 1000 < /dev/null &> /dev/null & echo $!'
+		runc exec test_busybox  -- sh -c 'sleep 1000 < /dev/null &> /dev/null & echo $!'
 		[ "$status" -eq 0 ]
 		execed_pid=$output
 	done

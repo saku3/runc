@@ -39,7 +39,7 @@ function exec_check_nofile() {
 	runc run -d --console-socket "$CONSOLE_SOCKET" test_rlimit
 	[ "$status" -eq 0 ]
 
-	runc exec test_rlimit /bin/sh -c "ulimit -n; ulimit -H -n"
+	runc exec test_rlimit /bin/ -- sh -c "ulimit -n; ulimit -H -n"
 	[ "$status" -eq 0 ]
 	[[ "${lines[0]}" == "${soft}" ]]
 	[[ "${lines[1]}" == "${hard}" ]]

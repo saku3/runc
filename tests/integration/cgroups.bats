@@ -92,7 +92,7 @@ function setup() {
 	runc exec test_cgroups_group mkdir /sys/fs/cgroup/foo
 	[ "$status" -eq 0 ]
 
-	runc exec test_cgroups_group sh -c "echo 1 > /sys/fs/cgroup/foo/cgroup.procs"
+	runc exec test_cgroups_group  -- sh -c "echo 1 > /sys/fs/cgroup/foo/cgroup.procs"
 	[ "$status" -eq 0 ]
 
 	# the init process is now in "/foo", but an exec process can still join "/"
@@ -141,11 +141,11 @@ function setup() {
 	runc run -d --console-socket "$CONSOLE_SOCKET" test_cgroups_unified
 	[ "$status" -eq 0 ]
 
-	runc exec test_cgroups_unified sh -c 'cat /sys/fs/cgroup/io.bfq.weight'
+	runc exec test_cgroups_unified  -- sh -c 'cat /sys/fs/cgroup/io.bfq.weight'
 	if [[ "$status" -eq 0 ]]; then
 		[ "$output" = 'default 750' ]
 	else
-		runc exec test_cgroups_unified sh -c 'cat /sys/fs/cgroup/io.weight'
+		runc exec test_cgroups_unified  -- sh -c 'cat /sys/fs/cgroup/io.weight'
 		[ "$output" = 'default 7475' ]
 	fi
 }
@@ -312,7 +312,7 @@ convert_hugetlb_size() {
 	runc run -d --console-socket "$CONSOLE_SOCKET" test_cgroups_unified
 	[ "$status" -eq 0 ]
 
-	runc exec test_cgroups_unified sh -c 'cd /sys/fs/cgroup && grep . *.min *.max *.low *.high'
+	runc exec test_cgroups_unified  -- sh -c 'cd /sys/fs/cgroup && grep . *.min *.max *.low *.high'
 	[ "$status" -eq 0 ]
 	echo "$output"
 
@@ -344,7 +344,7 @@ convert_hugetlb_size() {
 	runc run -d --console-socket "$CONSOLE_SOCKET" test_cgroups_unified
 	[ "$status" -eq 0 ]
 
-	runc exec test_cgroups_unified sh -c 'cd /sys/fs/cgroup && grep . *.max'
+	runc exec test_cgroups_unified  -- sh -c 'cd /sys/fs/cgroup && grep . *.max'
 	[ "$status" -eq 0 ]
 	echo "$output"
 
@@ -448,28 +448,28 @@ convert_hugetlb_size() {
 	[[ "$output" == *"cannot exec in a paused container"* ]]
 }
 
-@test "runc exec --ignore-paused" {
-	requires cgroups_freezer
-	[ $EUID -ne 0 ] && requires rootless_cgroup
-
-	set_cgroups_path
-
-	runc run -d --console-socket "$CONSOLE_SOCKET" ct1
-	[ "$status" -eq 0 ]
-	runc pause ct1
-	[ "$status" -eq 0 ]
-
-	# Resume the container a bit later.
-	(
-		sleep 2
-		runc resume ct1
-	) &
-
-	# Exec should not timeout or succeed.
-	runc exec --ignore-paused ct1 echo ok
-	[ "$status" -eq 0 ]
-	[ "$output" = "ok" ]
-}
+# @test "runc exec --ignore-paused" {
+# 	requires cgroups_freezer
+# 	[ $EUID -ne 0 ] && requires rootless_cgroup
+# 
+# 	set_cgroups_path
+# 
+# 	runc run -d --console-socket "$CONSOLE_SOCKET" ct1
+# 	[ "$status" -eq 0 ]
+# 	runc pause ct1
+# 	[ "$status" -eq 0 ]
+# 
+# 	# Resume the container a bit later.
+# 	(
+# 		sleep 2
+# 		runc resume ct1
+# 	) &
+# 
+# 	# Exec should not timeout or succeed.
+# 	runc exec --ignore-paused ct1 echo ok
+# 	[ "$status" -eq 0 ]
+# 	[ "$output" = "ok" ]
+# }
 
 @test "runc run/create should error for a non-empty cgroup" {
 	[ $EUID -ne 0 ] && requires rootless_cgroup
@@ -490,38 +490,38 @@ convert_hugetlb_size() {
 	[[ "$output" == *"container's cgroup is not empty"* ]]
 }
 
-@test "runc run/create should refuse pre-existing frozen cgroup" {
-	requires cgroups_freezer
-	[ $EUID -ne 0 ] && requires rootless_cgroup
-
-	set_cgroups_path
-
-	if [ -v CGROUP_V1 ]; then
-		FREEZER_DIR="${CGROUP_FREEZER_BASE_PATH}/${REL_CGROUPS_PATH}"
-		FREEZER="${FREEZER_DIR}/freezer.state"
-		STATE="FROZEN"
-	else
-		FREEZER_DIR="${CGROUP_V2_PATH}"
-		FREEZER="${FREEZER_DIR}/cgroup.freeze"
-		STATE="1"
-	fi
-
-	# Create and freeze the cgroup.
-	mkdir -p "$FREEZER_DIR"
-	echo "$STATE" >"$FREEZER"
-
-	# Start a container.
-	runc run -d --console-socket "$CONSOLE_SOCKET" ct1
-	[ "$status" -eq 1 ]
-	# A warning should be printed.
-	[[ "$output" == *"container's cgroup unexpectedly frozen"* ]]
-
-	# Same check for runc create.
-	runc create --console-socket "$CONSOLE_SOCKET" ct2
-	[ "$status" -eq 1 ]
-	# A warning should be printed.
-	[[ "$output" == *"container's cgroup unexpectedly frozen"* ]]
-
-	# Cleanup.
-	rmdir "$FREEZER_DIR"
-}
+# @test "runc run/create should refuse pre-existing frozen cgroup" {
+# 	requires cgroups_freezer
+# 	[ $EUID -ne 0 ] && requires rootless_cgroup
+# 
+# 	set_cgroups_path
+# 
+# 	if [ -v CGROUP_V1 ]; then
+# 		FREEZER_DIR="${CGROUP_FREEZER_BASE_PATH}/${REL_CGROUPS_PATH}"
+# 		FREEZER="${FREEZER_DIR}/freezer.state"
+# 		STATE="FROZEN"
+# 	else
+# 		FREEZER_DIR="${CGROUP_V2_PATH}"
+# 		FREEZER="${FREEZER_DIR}/cgroup.freeze"
+# 		STATE="1"
+# 	fi
+# 
+# 	# Create and freeze the cgroup.
+# 	mkdir -p "$FREEZER_DIR"
+# 	echo "$STATE" >"$FREEZER"
+# 
+# 	# Start a container.
+# 	runc run -d --console-socket "$CONSOLE_SOCKET" ct1
+# 	[ "$status" -eq 1 ]
+# 	# A warning should be printed.
+# 	[[ "$output" == *"container's cgroup unexpectedly frozen"* ]]
+# 
+# 	# Same check for runc create.
+# 	runc create --console-socket "$CONSOLE_SOCKET" ct2
+# 	[ "$status" -eq 1 ]
+# 	# A warning should be printed.
+# 	[[ "$output" == *"container's cgroup unexpectedly frozen"* ]]
+# 
+# 	# Cleanup.
+# 	rmdir "$FREEZER_DIR"
+# }

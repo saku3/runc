@@ -47,24 +47,24 @@ function teardown() {
 	[ "$status" -eq 0 ]
 
 	# test write
-	runc exec test_deny sh -c 'hostname | tee /dev/kmsg'
+	runc exec test_deny  -- sh -c 'hostname | tee /dev/kmsg'
 	[ "$status" -eq 1 ]
 	[[ "${output}" == *'Operation not permitted'* ]]
 
 	# test read
-	runc exec test_deny sh -c 'head -n 1 /dev/kmsg'
+	runc exec test_deny  -- sh -c 'head -n 1 /dev/kmsg'
 	[ "$status" -eq 1 ]
 	[[ "${output}" == *'Operation not permitted'* ]]
 
 	runc update test_deny --pids-limit 42
 
 	# test write
-	runc exec test_deny sh -c 'hostname | tee /dev/kmsg'
+	runc exec test_deny  -- sh -c 'hostname | tee /dev/kmsg'
 	[ "$status" -eq 1 ]
 	[[ "${output}" == *'Operation not permitted'* ]]
 
 	# test read
-	runc exec test_deny sh -c 'head -n 1 /dev/kmsg'
+	runc exec test_deny  -- sh -c 'head -n 1 /dev/kmsg'
 	[ "$status" -eq 1 ]
 	[[ "${output}" == *'Operation not permitted'* ]]
 }
@@ -84,18 +84,18 @@ function teardown() {
 	[ "$status" -eq 0 ]
 
 	# test write
-	runc exec test_allow_char sh -c 'hostname | tee /dev/kmsg'
+	runc exec test_allow_char  -- sh -c 'hostname | tee /dev/kmsg'
 	[ "$status" -eq 0 ]
 	[[ "${lines[0]}" == *'myhostname'* ]]
 
 	# test read
-	runc exec test_allow_char sh -c 'head -n 1 /dev/kmsg'
+	runc exec test_allow_char  -- sh -c 'head -n 1 /dev/kmsg'
 	[ "$status" -eq 0 ]
 
 	# test access
 	TEST_NAME="dev_access_test"
 	gcc -static -o "rootfs/bin/${TEST_NAME}" "${TESTDATA}/${TEST_NAME}.c"
-	runc exec test_allow_char sh -c "${TEST_NAME} /dev/kmsg"
+	runc exec test_allow_char  -- sh -c "${TEST_NAME} /dev/kmsg"
 	[ "$status" -eq 0 ]
 }
 
@@ -118,11 +118,11 @@ function teardown() {
 	[ "$status" -eq 0 ]
 
 	# test mknod
-	runc exec test_allow_block sh -c 'mknod /dev/fooblock b '"$major"' '"$minor"''
+	runc exec test_allow_block  -- sh -c 'mknod /dev/fooblock b '"$major"' '"$minor"''
 	[ "$status" -eq 0 ]
 
 	# test read
-	runc exec test_allow_block sh -c 'fdisk -l '"$device"''
+	runc exec test_allow_block  -- sh -c 'fdisk -l '"$device"''
 	[ "$status" -eq 0 ]
 }
 
@@ -133,12 +133,12 @@ function teardown() {
 	runc run -d --console-socket "$CONSOLE_SOCKET" test_exec
 	[ "$status" -eq 0 ]
 
-	runc exec -t test_exec sh -c "ls -l /proc/self/fd/0; echo 123"
+	runc exec -t test_exec  -- sh -c "ls -l /proc/self/fd/0; echo 123"
 	[ "$status" -eq 0 ]
 
 	systemctl daemon-reload
 
-	runc exec -t test_exec sh -c "ls -l /proc/self/fd/0; echo 123"
+	runc exec -t test_exec  -- sh -c "ls -l /proc/self/fd/0; echo 123"
 	[ "$status" -eq 0 ]
 }
 

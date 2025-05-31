@@ -32,7 +32,7 @@ function teardown() {
 
 	runc run -d --console-socket "$CONSOLE_SOCKET" test_busybox
 	[ "$status" -eq 0 ]
-	runc exec test_busybox /bin/sh -c "uname -a"
+	runc exec test_busybox /bin/ -- sh -c "uname -a"
 	[ "$status" -eq 0 ]
 	[[ "$output" == *"i686"* ]]
 }
@@ -58,7 +58,7 @@ function teardown() {
 
 	runc run -d --console-socket "$CONSOLE_SOCKET" test_busybox
 	[ "$status" -eq 0 ]
-	runc exec test_busybox /bin/sh -c "uname -a"
+	runc exec test_busybox /bin/ -- sh -c "uname -a"
 	[ "$status" -eq 0 ]
 	[[ "$output" == *"x86_64"* ]]
 }

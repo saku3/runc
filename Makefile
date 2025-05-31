@@ -170,7 +170,7 @@ integration: runcimage
 		$(RUNC_IMAGE) make localintegration TESTPATH="$(TESTPATH)"
 
 .PHONY: localintegration
-localintegration: runc test-binaries
+localintegration: test-binaries
 	bats -t tests/integration$(TESTPATH)
 
 .PHONY: rootlessintegration

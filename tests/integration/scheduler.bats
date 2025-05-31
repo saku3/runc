@@ -28,7 +28,7 @@ function teardown() {
 	[[ "${lines[1]}" == *"priority: 0" ]]
 
 	# Check exec settings derived from config.json.
-	runc exec test_scheduler sh -c 'chrt -p $$'
+	runc exec test_scheduler  -- sh -c 'chrt -p $$'
 	[ "$status" -eq 0 ]
 	[[ "${lines[0]}" == *"scheduling policy: SCHED_BATCH" ]]
 	[[ "${lines[1]}" == *"priority: 0" ]]
